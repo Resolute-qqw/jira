@@ -3,9 +3,7 @@ import { List } from "./list";
 import { SearchPanel } from "./searchPanel";
 import { useState, useEffect } from "react";
 import { cleanObject, useDebounce } from "utils";
-import * as qs from "qs";
-
-const apiUrl = process.env.REACT_APP_API_URL;
+import { useHttp } from "utils/http";
 
 export const ProjectList = () => {
   const [param, setParam] = useState({
@@ -15,23 +13,16 @@ export const ProjectList = () => {
   const debounceParam = useDebounce(param, 200);
   const [list, setList] = useState([]);
   const [users, setUsers] = useState([]);
+  const client = useHttp();
 
   useEffect(() => {
-    fetch(
-      `${apiUrl}/projects?${qs.stringify(cleanObject(debounceParam))}`
-    ).then(async (response) => {
-      if (response.ok) {
-        setList(await response.json());
-      }
-    });
+    client("projects", { data: cleanObject(debounceParam) }).then(setList);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debounceParam]);
 
   useEffect(() => {
-    fetch(`${apiUrl}/users`).then(async (response) => {
-      if (response.ok) {
-        setUsers(await response.json());
-      }
-    });
+    client("users").then(setUsers);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

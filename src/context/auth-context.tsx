@@ -1,6 +1,7 @@
-import React, { ReactNode, useState } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import * as auth from "auth-provider";
 import { User } from "screens/project-list/searchPanel";
+import { http } from "utils/http";
 
 interface AuthFrom {
   username: string;
@@ -18,11 +19,26 @@ const AuthContext = React.createContext<
 >(undefined);
 AuthContext.displayName = "AuthContext";
 
+const bootstrapUser = async () => {
+  let user = null;
+  const token = auth.getToken();
+  if (token) {
+    const data = await http("me", { token });
+    user = data.user;
+  }
+  return user;
+};
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const login = (form: AuthFrom) => auth.login(form).then(setUser);
   const register = (form: AuthFrom) => auth.register(form).then(setUser);
   const logout = () => auth.logout().then(() => setUser(null));
+
+  useEffect(() => {
+    bootstrapUser().then(setUser);
+  }, []);
+
   return (
     <AuthContext.Provider
       children={children}
