@@ -4,6 +4,7 @@ import { SearchPanel } from "./searchPanel";
 import { useState, useEffect } from "react";
 import { cleanObject, useDebounce } from "utils";
 import { useHttp } from "utils/http";
+import styled from "@emotion/styled";
 
 export const ProjectList = () => {
   const [param, setParam] = useState({
@@ -26,9 +27,14 @@ export const ProjectList = () => {
   }, []);
 
   return (
-    <div>
+    <Container>
+      <h1>项目列表</h1>
       <SearchPanel param={param} users={users} setParam={setParam} />
       <List list={list} users={users} />
-    </div>
+    </Container>
   );
 };
+
+const Container = styled.div`
+  padding: 3.2rem;
+`;
